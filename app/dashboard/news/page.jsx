@@ -17,7 +17,7 @@ export default function NewsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingNews, setEditingNews] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all"); // all, draft, published
+  const [statusFilter, setStatusFilter] = useState("all");
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
@@ -55,7 +55,6 @@ export default function NewsPage() {
         image: file,
       }));
 
-      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
@@ -73,7 +72,6 @@ export default function NewsPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Create FormData for file upload
       const submitData = new FormData();
       submitData.append("title", formData.title);
       submitData.append("slug", formData.slug);
@@ -114,7 +112,6 @@ export default function NewsPage() {
       status: item.status || "draft",
       image: null,
     });
-    // Set existing image as preview
     if (item.image) {
       setImagePreview(`${getBaseURL()}${item.image}`);
     } else {
@@ -147,7 +144,6 @@ export default function NewsPage() {
     });
     setImagePreview(null);
     setEditingNews(null);
-    // Reset file input
     const fileInput = document.querySelector(
       'input[type="file"][name="image"]'
     );
@@ -346,7 +342,7 @@ export default function NewsPage() {
         </div>
       </div>
 
-      {/* Modal Form */}
+      {/* Modal Form dengan Scrollbar */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => {
@@ -356,111 +352,114 @@ export default function NewsPage() {
         title={editingNews ? "Edit Berita" : "Tambah Berita"}
         size="lg"
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Judul"
-            name="title"
-            value={formData.title}
-            onChange={handleInputChange}
-            required
-            placeholder="Masukkan judul berita"
-          />
-
-          <Input
-            label="Slug"
-            name="slug"
-            value={formData.slug}
-            onChange={handleInputChange}
-            required
-            placeholder="judul-berita"
-          />
-
-          <Select
-            label="Kategori"
-            name="category"
-            value={formData.category}
-            onChange={handleInputChange}
-            options={[
-              { value: "", label: "Pilih Kategori" },
-              { value: "achievement", label: "Achievement" },
-              { value: "company_news", label: "Company News" },
-              { value: "tips", label: "Tips" },
-              { value: "event", label: "Event" },
-            ]}
-            required
-          />
-
-          <Textarea
-            label="Ringkasan"
-            name="excerpt"
-            value={formData.excerpt}
-            onChange={handleInputChange}
-            rows={3}
-            placeholder="Ringkasan singkat berita"
-          />
-
-          <Textarea
-            label="Konten"
-            name="content"
-            value={formData.content}
-            onChange={handleInputChange}
-            rows={8}
-            required
-            placeholder="Konten lengkap berita"
-          />
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Upload Gambar
-            </label>
-            <input
-              type="file"
-              name="image"
+        {/* Wrapper dengan max-height dan overflow-y-auto untuk scroll */}
+        <div className="max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Judul"
+              name="title"
+              value={formData.title}
               onChange={handleInputChange}
-              accept="image/jpeg,image/jpg,image/png,image/webp"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              required
+              placeholder="Masukkan judul berita"
             />
-            <p className="text-xs text-gray-500 mt-1">
-              Max 5MB. Format: JPG, PNG, atau WebP
-            </p>
-            {imagePreview && (
-              <div className="mt-3">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="w-full h-48 object-cover rounded-lg border border-gray-300"
-                />
-              </div>
-            )}
-          </div>
 
-          <Select
-            label="Status"
-            name="status"
-            value={formData.status}
-            onChange={handleInputChange}
-            options={[
-              { value: "draft", label: "Draft" },
-              { value: "published", label: "Published" },
-            ]}
-          />
+            <Input
+              label="Slug"
+              name="slug"
+              value={formData.slug}
+              onChange={handleInputChange}
+              required
+              placeholder="judul-berita"
+            />
 
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setIsModalOpen(false);
-                resetForm();
-              }}
-            >
-              Batal
-            </Button>
-            <Button type="submit" variant="primary">
-              {editingNews ? "Update" : "Simpan"}
-            </Button>
-          </div>
-        </form>
+            <Select
+              label="Kategori"
+              name="category"
+              value={formData.category}
+              onChange={handleInputChange}
+              options={[
+                { value: "", label: "Pilih Kategori" },
+                { value: "achievement", label: "Achievement" },
+                { value: "company_news", label: "Company News" },
+                { value: "tips", label: "Tips" },
+                { value: "event", label: "Event" },
+              ]}
+              required
+            />
+
+            <Textarea
+              label="Ringkasan"
+              name="excerpt"
+              value={formData.excerpt}
+              onChange={handleInputChange}
+              rows={3}
+              placeholder="Ringkasan singkat berita"
+            />
+
+            <Textarea
+              label="Konten"
+              name="content"
+              value={formData.content}
+              onChange={handleInputChange}
+              rows={8}
+              required
+              placeholder="Konten lengkap berita"
+            />
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Upload Gambar
+              </label>
+              <input
+                type="file"
+                name="image"
+                onChange={handleInputChange}
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Max 5MB. Format: JPG, PNG, atau WebP
+              </p>
+              {imagePreview && (
+                <div className="mt-3">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-48 object-cover rounded-lg border border-gray-300"
+                  />
+                </div>
+              )}
+            </div>
+
+            <Select
+              label="Status"
+              name="status"
+              value={formData.status}
+              onChange={handleInputChange}
+              options={[
+                { value: "draft", label: "Draft" },
+                { value: "published", label: "Published" },
+              ]}
+            />
+
+            <div className="flex justify-end gap-3 pt-4 sticky bottom-0 bg-white pb-2 border-t border-gray-200 mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setIsModalOpen(false);
+                  resetForm();
+                }}
+              >
+                Batal
+              </Button>
+              <Button type="submit" variant="primary">
+                {editingNews ? "Update" : "Simpan"}
+              </Button>
+            </div>
+          </form>
+        </div>
       </Modal>
     </DashboardLayout>
   );

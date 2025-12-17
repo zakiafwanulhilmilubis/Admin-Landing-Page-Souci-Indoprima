@@ -335,7 +335,7 @@ export default function JobsPage() {
         </div>
       </div>
 
-      {/* Modal Form */}
+      {/* Modal Form dengan Scrollbar */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => {
@@ -345,232 +345,234 @@ export default function JobsPage() {
         title={editingJob ? "Edit Lowongan" : "Tambah Lowongan"}
         size="lg"
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {formData.status === "closed" && (
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg
-                    className="h-5 w-5 text-yellow-400"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm text-yellow-700">
-                    Lowongan ini sedang <strong>DITUTUP</strong>. Ubah status
-                    menjadi "Dibuka" untuk mengedit informasi lainnya.
-                  </p>
+        {/* Wrapper dengan scrollbar - BAGIAN INI YANG DITAMBAHKAN */}
+        <div className="max-h-[calc(100vh-200px)] overflow-y-auto pr-2 scroll-smooth">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {formData.status === "closed" && (
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg
+                      className="h-5 w-5 text-yellow-400"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-yellow-700">
+                      Lowongan ini sedang <strong>DITUTUP</strong>. Ubah status
+                      menjadi "Dibuka" untuk mengedit informasi lainnya.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-
-          <Input
-            label="Posisi"
-            name="title"
-            value={formData.title}
-            onChange={handleInputChange}
-            required
-            placeholder="Contoh: Software Engineer"
-            disabled={formData.status === "closed"}
-          />
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Slug <span className="text-red-500">*</span>
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                name="slug"
-                value={formData.slug}
-                onChange={handleInputChange}
-                required
-                placeholder="software-engineer"
-                className={`flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 ${
-                  formData.status === "closed" ? "bg-gray-100" : "bg-white"
-                }`}
-                disabled={formData.status === "closed"}
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  const uniqueSlug =
-                    formData.slug +
-                    "-" +
-                    Math.random().toString(36).substr(2, 5);
-                  setFormData((prev) => ({ ...prev, slug: uniqueSlug }));
-                }}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors whitespace-nowrap"
-                title="Generate slug unik"
-                disabled={formData.status === "closed"}
-              >
-                🔄 Unik
-              </button>
-            </div>
-            {!formData.status === "closed" && (
-              <p className="text-xs text-gray-500 mt-1">
-                Klik "🔄 Unik" jika slug sudah digunakan
-              </p>
             )}
-          </div>
 
-          <Input
-            label="Perusahaan"
-            name="company"
-            value={formData.company}
-            onChange={handleInputChange}
-            required
-            placeholder="Contoh: PT Souci Indoprima"
-            disabled={formData.status === "closed"}
-          />
+            <Input
+              label="Posisi"
+              name="title"
+              value={formData.title}
+              onChange={handleInputChange}
+              required
+              placeholder="Contoh: Software Engineer"
+              disabled={formData.status === "closed"}
+            />
 
-          <Input
-            label="Lokasi"
-            name="location"
-            value={formData.location}
-            onChange={handleInputChange}
-            required
-            placeholder="Contoh: Jakarta, Indonesia"
-            disabled={formData.status === "closed"}
-          />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Slug <span className="text-red-500">*</span>
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  name="slug"
+                  value={formData.slug}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="software-engineer"
+                  className={`flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400 ${
+                    formData.status === "closed" ? "bg-gray-100" : "bg-white"
+                  }`}
+                  disabled={formData.status === "closed"}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const uniqueSlug =
+                      formData.slug +
+                      "-" +
+                      Math.random().toString(36).substr(2, 5);
+                    setFormData((prev) => ({ ...prev, slug: uniqueSlug }));
+                  }}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors whitespace-nowrap"
+                  title="Generate slug unik"
+                  disabled={formData.status === "closed"}
+                >
+                  🔄 Unik
+                </button>
+              </div>
+              {!formData.status === "closed" && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Klik "🔄 Unik" jika slug sudah digunakan
+                </p>
+              )}
+            </div>
 
-          <Select
-            label="Tipe Pekerjaan"
-            name="type"
-            value={formData.type}
-            onChange={handleInputChange}
-            options={[
-              { value: "full_time", label: "Full Time" },
-              { value: "part_time", label: "Part Time" },
-              { value: "contract", label: "Contract" },
-              { value: "internship", label: "Internship" },
-            ]}
-            disabled={formData.status === "closed"}
-          />
+            <Input
+              label="Perusahaan"
+              name="company"
+              value={formData.company}
+              onChange={handleInputChange}
+              required
+              placeholder="Contoh: PT Souci Indoprima"
+              disabled={formData.status === "closed"}
+            />
 
-          <Input
-            label="Rentang Gaji"
-            name="salary_range"
-            value={formData.salary_range}
-            onChange={handleInputChange}
-            placeholder="Contoh: Rp 8.000.000 - Rp 12.000.000"
-            disabled={formData.status === "closed"}
-          />
+            <Input
+              label="Lokasi"
+              name="location"
+              value={formData.location}
+              onChange={handleInputChange}
+              required
+              placeholder="Contoh: Jakarta, Indonesia"
+              disabled={formData.status === "closed"}
+            />
 
-          <Input
-            label="Pendidikan"
-            name="education"
-            value={formData.education}
-            onChange={handleInputChange}
-            placeholder="Contoh: S1 Teknik Informatika"
-            disabled={formData.status === "closed"}
-          />
+            <Select
+              label="Tipe Pekerjaan"
+              name="type"
+              value={formData.type}
+              onChange={handleInputChange}
+              options={[
+                { value: "full_time", label: "Full Time" },
+                { value: "part_time", label: "Part Time" },
+                { value: "contract", label: "Contract" },
+                { value: "internship", label: "Internship" },
+              ]}
+              disabled={formData.status === "closed"}
+            />
 
-          <Input
-            label="Pengalaman"
-            name="experience"
-            value={formData.experience}
-            onChange={handleInputChange}
-            placeholder="Contoh: 1-2 Tahun"
-            disabled={formData.status === "closed"}
-          />
+            <Input
+              label="Rentang Gaji"
+              name="salary_range"
+              value={formData.salary_range}
+              onChange={handleInputChange}
+              placeholder="Contoh: Rp 8.000.000 - Rp 12.000.000"
+              disabled={formData.status === "closed"}
+            />
 
-          <Input
-            label="Kategori"
-            name="category"
-            value={formData.category}
-            onChange={handleInputChange}
-            placeholder="Contoh: IT & Software"
-            disabled={formData.status === "closed"}
-          />
+            <Input
+              label="Pendidikan"
+              name="education"
+              value={formData.education}
+              onChange={handleInputChange}
+              placeholder="Contoh: S1 Teknik Informatika"
+              disabled={formData.status === "closed"}
+            />
 
-          <Input
-            label="Deadline Lamaran"
-            name="deadline"
-            type="date"
-            value={formData.deadline}
-            onChange={handleInputChange}
-            placeholder="YYYY-MM-DD"
-            disabled={formData.status === "closed"}
-          />
+            <Input
+              label="Pengalaman"
+              name="experience"
+              value={formData.experience}
+              onChange={handleInputChange}
+              placeholder="Contoh: 1-2 Tahun"
+              disabled={formData.status === "closed"}
+            />
 
-          <Textarea
-            label="Deskripsi"
-            name="description"
-            value={formData.description}
-            onChange={handleInputChange}
-            rows={5}
-            required
-            placeholder="Deskripsi pekerjaan..."
-            disabled={formData.status === "closed"}
-          />
+            <Input
+              label="Kategori"
+              name="category"
+              value={formData.category}
+              onChange={handleInputChange}
+              placeholder="Contoh: IT & Software"
+              disabled={formData.status === "closed"}
+            />
 
-          <Textarea
-            label="Persyaratan"
-            name="requirements"
-            value={formData.requirements}
-            onChange={handleInputChange}
-            rows={5}
-            placeholder="Persyaratan yang dibutuhkan (satu per baris)..."
-            disabled={formData.status === "closed"}
-          />
+            <Input
+              label="Deadline Lamaran"
+              name="deadline"
+              type="date"
+              value={formData.deadline}
+              onChange={handleInputChange}
+              placeholder="YYYY-MM-DD"
+              disabled={formData.status === "closed"}
+            />
 
-          <Textarea
-            label="Tanggung Jawab"
-            name="responsibilities"
-            value={formData.responsibilities}
-            onChange={handleInputChange}
-            rows={5}
-            placeholder="Tanggung jawab pekerjaan (satu per baris)..."
-            disabled={formData.status === "closed"}
-          />
+            <Textarea
+              label="Deskripsi"
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              rows={5}
+              required
+              placeholder="Deskripsi pekerjaan..."
+              disabled={formData.status === "closed"}
+            />
 
-          <Textarea
-            label="Benefit & Fasilitas"
-            name="benefits"
-            value={formData.benefits}
-            onChange={handleInputChange}
-            rows={5}
-            placeholder="Benefit yang didapat (satu per baris)..."
-            disabled={formData.status === "closed"}
-          />
+            <Textarea
+              label="Persyaratan"
+              name="requirements"
+              value={formData.requirements}
+              onChange={handleInputChange}
+              rows={5}
+              placeholder="Persyaratan yang dibutuhkan (satu per baris)..."
+              disabled={formData.status === "closed"}
+            />
 
-          <Select
-            label="Status"
-            name="status"
-            value={formData.status}
-            onChange={handleInputChange}
-            options={[
-              { value: "open", label: "Dibuka" },
-              { value: "closed", label: "Ditutup" },
-            ]}
-            // Status is NOT disabled, so they can re-open
-          />
+            <Textarea
+              label="Tanggung Jawab"
+              name="responsibilities"
+              value={formData.responsibilities}
+              onChange={handleInputChange}
+              rows={5}
+              placeholder="Tanggung jawab pekerjaan (satu per baris)..."
+              disabled={formData.status === "closed"}
+            />
 
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setIsModalOpen(false);
-                resetForm();
-              }}
-            >
-              Batal
-            </Button>
-            <Button type="submit" variant="primary">
-              {editingJob ? "Update" : "Simpan"}
-            </Button>
-          </div>
-        </form>
+            <Textarea
+              label="Benefit & Fasilitas"
+              name="benefits"
+              value={formData.benefits}
+              onChange={handleInputChange}
+              rows={5}
+              placeholder="Benefit yang didapat (satu per baris)..."
+              disabled={formData.status === "closed"}
+            />
+
+            <Select
+              label="Status"
+              name="status"
+              value={formData.status}
+              onChange={handleInputChange}
+              options={[
+                { value: "open", label: "Dibuka" },
+                { value: "closed", label: "Ditutup" },
+              ]}
+            />
+
+            <div className="flex justify-end gap-3 pt-4 sticky bottom-0 bg-white pb-2 border-t border-gray-200 mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setIsModalOpen(false);
+                  resetForm();
+                }}
+              >
+                Batal
+              </Button>
+              <Button type="submit" variant="primary">
+                {editingJob ? "Update" : "Simpan"}
+              </Button>
+            </div>
+          </form>
+        </div>
       </Modal>
     </DashboardLayout>
   );

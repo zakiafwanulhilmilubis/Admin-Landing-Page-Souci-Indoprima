@@ -285,7 +285,7 @@ export default function TestimonialsPage() {
         </div>
       </div>
 
-      {/* Modal Form */}
+      {/* Modal Form dengan Scrollbar */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => {
@@ -295,118 +295,121 @@ export default function TestimonialsPage() {
         title={editingTestimonial ? "Edit Testimoni" : "Tambah Testimoni"}
         size="lg"
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Nama"
-            name="name"
-            value={formData.name}
-            onChange={handleInputChange}
-            required
-            placeholder="Nama pelanggan"
-          />
-
-          <Input
-            label="Posisi"
-            name="position"
-            value={formData.position}
-            onChange={handleInputChange}
-            placeholder="Jabatan"
-          />
-
-          <Input
-            label="Perusahaan"
-            name="company"
-            value={formData.company}
-            onChange={handleInputChange}
-            placeholder="Nama perusahaan"
-          />
-
-          <Textarea
-            label="Testimoni"
-            name="content"
-            value={formData.content}
-            onChange={handleInputChange}
-            rows={5}
-            required
-            placeholder="Tulis testimoni..."
-          />
-
-          {/* Image Upload */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Foto Profil
-            </label>
-            <input
-              type="file"
-              name="image"
-              accept="image/jpeg,image/jpg,image/png,image/webp"
+        {/* Wrapper dengan scrollbar - BAGIAN INI YANG DITAMBAHKAN */}
+        <div className="max-h-[calc(100vh-200px)] overflow-y-auto pr-2 scroll-smooth">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Nama"
+              name="name"
+              value={formData.name}
               onChange={handleInputChange}
-              className="block w-full text-sm text-gray-500
-                file:mr-4 file:py-2 file:px-4
-                file:rounded-lg file:border-0
-                file:text-sm file:font-semibold
-                file:bg-blue-50 file:text-blue-700
-                hover:file:bg-blue-100
-                cursor-pointer"
+              required
+              placeholder="Nama pelanggan"
             />
-            <p className="mt-1 text-xs text-gray-500">
-              Format: JPG, PNG, WebP (Max 5MB)
-            </p>
 
-            {/* Image Preview */}
-            {imagePreview && (
-              <div className="mt-3">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
-                />
-              </div>
-            )}
-          </div>
+            <Input
+              label="Posisi"
+              name="position"
+              value={formData.position}
+              onChange={handleInputChange}
+              placeholder="Jabatan"
+            />
 
-          <Select
-            label="Rating"
-            name="rating"
-            value={formData.rating}
-            onChange={handleInputChange}
-            options={[
-              { value: 5, label: "5 Bintang" },
-              { value: 4, label: "4 Bintang" },
-              { value: 3, label: "3 Bintang" },
-              { value: 2, label: "2 Bintang" },
-              { value: 1, label: "1 Bintang" },
-            ]}
-          />
+            <Input
+              label="Perusahaan"
+              name="company"
+              value={formData.company}
+              onChange={handleInputChange}
+              placeholder="Nama perusahaan"
+            />
 
-          <Select
-            label="Status"
-            name="status"
-            value={formData.status}
-            onChange={handleInputChange}
-            options={[
-              { value: "pending", label: "Pending" },
-              { value: "approved", label: "Approved" },
-              { value: "rejected", label: "Rejected" },
-            ]}
-          />
+            <Textarea
+              label="Testimoni"
+              name="content"
+              value={formData.content}
+              onChange={handleInputChange}
+              rows={5}
+              required
+              placeholder="Tulis testimoni..."
+            />
 
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setIsModalOpen(false);
-                resetForm();
-              }}
-            >
-              Batal
-            </Button>
-            <Button type="submit" variant="primary">
-              {editingTestimonial ? "Update" : "Simpan"}
-            </Button>
-          </div>
-        </form>
+            {/* Image Upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Foto Profil
+              </label>
+              <input
+                type="file"
+                name="image"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                onChange={handleInputChange}
+                className="block w-full text-sm text-gray-500
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-lg file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-blue-50 file:text-blue-700
+                  hover:file:bg-blue-100
+                  cursor-pointer"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Format: JPG, PNG, WebP (Max 5MB)
+              </p>
+
+              {/* Image Preview */}
+              {imagePreview && (
+                <div className="mt-3">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
+                  />
+                </div>
+              )}
+            </div>
+
+            <Select
+              label="Rating"
+              name="rating"
+              value={formData.rating}
+              onChange={handleInputChange}
+              options={[
+                { value: 5, label: "5 Bintang" },
+                { value: 4, label: "4 Bintang" },
+                { value: 3, label: "3 Bintang" },
+                { value: 2, label: "2 Bintang" },
+                { value: 1, label: "1 Bintang" },
+              ]}
+            />
+
+            <Select
+              label="Status"
+              name="status"
+              value={formData.status}
+              onChange={handleInputChange}
+              options={[
+                { value: "pending", label: "Pending" },
+                { value: "approved", label: "Approved" },
+                { value: "rejected", label: "Rejected" },
+              ]}
+            />
+
+            <div className="flex justify-end gap-3 pt-4 sticky bottom-0 bg-white pb-2 border-t border-gray-200 mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setIsModalOpen(false);
+                  resetForm();
+                }}
+              >
+                Batal
+              </Button>
+              <Button type="submit" variant="primary">
+                {editingTestimonial ? "Update" : "Simpan"}
+              </Button>
+            </div>
+          </form>
+        </div>
       </Modal>
     </DashboardLayout>
   );
