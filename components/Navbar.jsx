@@ -2,7 +2,7 @@
 
 import { FiMenu, FiBell, FiUser } from "react-icons/fi";
 
-export default function Navbar({ setSidebarOpen }) {
+export default function Navbar({ setSidebarOpen, hasNotifications = false, notificationCount = 0 }) {
   return (
     <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 lg:px-6">
       {/* Left Section */}
@@ -21,7 +21,16 @@ export default function Navbar({ setSidebarOpen }) {
         {/* Notifications */}
         <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
           <FiBell size={20} />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          {/* Badge notifikasi - hanya muncul jika ada notifikasi */}
+          {hasNotifications && (
+            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          )}
+          {/* Opsional: Tampilkan jumlah notifikasi */}
+          {notificationCount > 0 && (
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+              {notificationCount > 9 ? '9+' : notificationCount}
+            </span>
+          )}
         </button>
 
         {/* User Profile */}
