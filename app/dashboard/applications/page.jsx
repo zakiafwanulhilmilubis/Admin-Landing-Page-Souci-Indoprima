@@ -11,6 +11,7 @@ import {
   FiFileText,
   FiSearch,
   FiDownload,
+  FiX,
 } from "react-icons/fi";
 import Button from "@/components/Button";
 import Modal from "@/components/Modal";
@@ -24,6 +25,7 @@ export default function ApplicationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
+  // Fetch applications saat pertama kali load
   useEffect(() => {
     fetchApplications();
   }, []);
@@ -35,10 +37,28 @@ export default function ApplicationsPage() {
       setApplications(response?.data?.data || []);
     } catch (error) {
       console.error("Error fetching applications:", error);
+      setApplications([]);
     } finally {
       setLoading(false);
     }
   };
+
+  // Client-side filtering
+  const filteredApplications = applications.filter((item) => {
+    const searchLower = searchTerm.toLowerCase();
+    
+    // Filter berdasarkan search term (nama atau job title)
+    const matchesSearch =
+      !searchTerm ||
+      item.name?.toLowerCase().includes(searchLower) ||
+      item.job_title?.toLowerCase().includes(searchLower);
+
+    // Filter berdasarkan status
+    const matchesStatus =
+      statusFilter === "all" || item.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
 
   const handleViewDetail = (application) => {
     setSelectedApplication(application);
@@ -56,54 +76,78 @@ export default function ApplicationsPage() {
     }
   };
 
-  const filteredApplications = applications.filter((item) => {
-    const matchesSearch =
-      item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.email?.toLowerCase().includes(searchTerm.toLowerCase());
+  const handleClearSearch = () => {
+    setSearchTerm("");
+  };
 
-    const matchesStatus =
-      statusFilter === "all" || item.status === statusFilter;
-
-    return matchesSearch && matchesStatus;
-  });
+  const handleResetFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("all");
+  };
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Manajemen Lamaran
-          </h1>
-          <p className="text-gray-600 mt-1">Kelola lamaran pekerjaan</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Manajemen Lamaran
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Kelola lamaran pekerjaan - Menampilkan {filteredApplications.length} dari {applications.length} lamaran
+            </p>
+          </div>
+          {(searchTerm || statusFilter !== "all") && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleResetFilters}
+              className="flex items-center gap-2"
+            >
+              <FiX size={16} />
+              Reset Filter
+            </Button>
+          )}
         </div>
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow p-4">
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div className="relative">
-      <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-      <input
-        type="text"
-        placeholder="Cari lamaran..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="text-gray-700 placeholder-gray-500 w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-    </div>
-    <select
-      value={statusFilter}
-      onChange={(e) => setStatusFilter(e.target.value)}
-      className={`px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${statusFilter === 'all' ? 'text-gray-500' : 'text-gray-900'}`}
-    >
-      <option value="all">Semua Status</option>
-      <option value="pending">Pending</option>
-      <option value="reviewed">Reviewed</option>
-      <option value="shortlisted">Shortlisted</option>
-      <option value="accepted">Accepted</option>
-      <option value="rejected">Rejected</option>
-    </select>
-  </div>
-</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="relative">
+              <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Cari nama atau posisi..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="text-gray-700 placeholder-gray-500 w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {searchTerm && (
+                <button
+                  onClick={handleClearSearch}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <FiX size={18} />
+                </button>
+              )}
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className={`px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                statusFilter === "all" ? "text-gray-500" : "text-gray-900"
+              }`}
+            >
+              <option value="all">Semua Status</option>
+              <option value="pending">Pending</option>
+              <option value="reviewed">Reviewed</option>
+              <option value="shortlisted">Shortlisted</option>
+              <option value="accepted">Accepted</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+        </div>
 
         {/* Table */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -132,7 +176,19 @@ export default function ApplicationsPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredApplications.length > 0 ? (
+                {loading ? (
+                  <tr>
+                    <td
+                      colSpan="6"
+                      className="px-6 py-8 text-center text-gray-500"
+                    >
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        <span className="ml-3">Memuat data...</span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : filteredApplications.length > 0 ? (
                   filteredApplications.map((item) => (
                     <tr key={item.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
@@ -214,7 +270,15 @@ export default function ApplicationsPage() {
                       colSpan="6"
                       className="px-6 py-8 text-center text-gray-500"
                     >
-                      {loading ? "Memuat data..." : "Tidak ada data lamaran"}
+                      <div className="flex flex-col items-center">
+                        <FiSearch className="text-gray-300 mb-2" size={48} />
+                        <p className="font-medium">Tidak ada data lamaran</p>
+                        {searchTerm && (
+                          <p className="text-sm mt-1">
+                            Coba ubah kata kunci pencarian
+                          </p>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 )}
@@ -368,7 +432,12 @@ export default function ApplicationsPage() {
                   onClick={() =>
                     handleUpdateStatus(selectedApplication.id, "pending")
                   }
-                  className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
+                  disabled={selectedApplication.status === "pending"}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
+                    selectedApplication.status === "pending"
+                      ? "border-yellow-300 bg-yellow-50 text-yellow-700 cursor-not-allowed"
+                      : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                  }`}
                 >
                   Pending
                 </button>
@@ -376,7 +445,12 @@ export default function ApplicationsPage() {
                   onClick={() =>
                     handleUpdateStatus(selectedApplication.id, "reviewed")
                   }
-                  className="px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                  disabled={selectedApplication.status === "reviewed"}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    selectedApplication.status === "reviewed"
+                      ? "bg-blue-700 text-white cursor-not-allowed"
+                      : "bg-blue-600 text-white hover:bg-blue-700"
+                  }`}
                 >
                   Reviewed
                 </button>
@@ -384,7 +458,12 @@ export default function ApplicationsPage() {
                   onClick={() =>
                     handleUpdateStatus(selectedApplication.id, "shortlisted")
                   }
-                  className="px-4 py-2 text-sm font-medium rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors"
+                  disabled={selectedApplication.status === "shortlisted"}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    selectedApplication.status === "shortlisted"
+                      ? "bg-green-700 text-white cursor-not-allowed"
+                      : "bg-green-600 text-white hover:bg-green-700"
+                  }`}
                 >
                   Shortlisted
                 </button>
@@ -392,7 +471,12 @@ export default function ApplicationsPage() {
                   onClick={() =>
                     handleUpdateStatus(selectedApplication.id, "accepted")
                   }
-                  className="px-4 py-2 text-sm font-medium rounded-lg bg-green-700 text-white hover:bg-green-800 transition-colors"
+                  disabled={selectedApplication.status === "accepted"}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    selectedApplication.status === "accepted"
+                      ? "bg-green-800 text-white cursor-not-allowed"
+                      : "bg-green-700 text-white hover:bg-green-800"
+                  }`}
                 >
                   Accepted
                 </button>
@@ -400,7 +484,12 @@ export default function ApplicationsPage() {
                   onClick={() =>
                     handleUpdateStatus(selectedApplication.id, "rejected")
                   }
-                  className="px-4 py-2 text-sm font-medium rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
+                  disabled={selectedApplication.status === "rejected"}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    selectedApplication.status === "rejected"
+                      ? "bg-red-700 text-white cursor-not-allowed"
+                      : "bg-red-600 text-white hover:bg-red-700"
+                  }`}
                 >
                   Rejected
                 </button>
