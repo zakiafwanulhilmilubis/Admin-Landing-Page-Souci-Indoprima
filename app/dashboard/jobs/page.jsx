@@ -28,6 +28,7 @@ export default function JobsPage() {
     location: "",
     type: "full_time",
     salary_range: "",
+    kuota: "",
     education: "",
     experience: "",
     category: "",
@@ -153,6 +154,7 @@ export default function JobsPage() {
       location: item.location || "",
       type: item.type || "full_time",
       salary_range: item.salary_range || "",
+      kuota: item.kuota || "",
       education: item.education || "",
       experience: item.experience || "",
       category: item.category || "",
@@ -189,6 +191,7 @@ export default function JobsPage() {
       location: "",
       type: "full_time",
       salary_range: "",
+      kuota: "",
       education: "",
       experience: "",
       category: "",
@@ -252,6 +255,9 @@ export default function JobsPage() {
                     Lokasi
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Kuota
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Tipe
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -280,6 +286,9 @@ export default function JobsPage() {
                           <FiMapPin className="mr-1" size={14} />
                           {item.location}
                         </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {item.kuota || "-"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
@@ -319,7 +328,7 @@ export default function JobsPage() {
                 ) : (
                   <tr>
                     <td
-                      colSpan="6"
+                      colSpan="7"
                       className="px-6 py-8 text-center text-gray-500"
                     >
                       {loading
@@ -463,6 +472,15 @@ export default function JobsPage() {
               value={formData.salary_range}
               onChange={handleInputChange}
               placeholder="Contoh: Rp 8.000.000 - Rp 12.000.000"
+              disabled={formData.status === "closed"}
+            />
+
+            <Input
+              label="Kuota Terima"
+              name="kuota"
+              value={formData.kuota}
+              onChange={handleInputChange}
+              placeholder="10 Orang"
               disabled={formData.status === "closed"}
             />
 
