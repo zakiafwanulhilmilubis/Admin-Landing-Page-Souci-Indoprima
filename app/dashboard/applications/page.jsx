@@ -345,14 +345,16 @@ export default function ApplicationsPage() {
                   )}
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Email
-                  </label>
+                  <label className="text-sm font-medium text-gray-500 flex items-center gap-1">
+                      <FiMail className="text-green-500" />
+                       Email
+                    </label>
                   <p className="text-gray-900">{selectedApplication.email}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Telepon
+                  <label className="text-sm font-medium text-gray-500 flex items-center gap-1">
+                      <FiPhone className="text-green-500" />
+                      Nomor Telepon
                   </label>
                   <p className="text-gray-900">{selectedApplication.phone}</p>
                 </div>
@@ -424,26 +426,6 @@ export default function ApplicationsPage() {
                 Dokumen Lamaran
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {/* CV */}
-                {selectedApplication.cv_path && (
-                  <a
-                    href={`${getBaseURL()}${selectedApplication.cv_path}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    download
-                    className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors group"
-                  >
-                    <div className="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                      <FiFileText className="text-white" size={20} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900">CV / Resume</p>
-                      <p className="text-xs text-gray-500">Klik untuk download</p>
-                    </div>
-                    <FiDownload className="text-blue-600 group-hover:text-blue-700" size={20} />
-                  </a>
-                )}
-
                 {/* KTP */}
                 {selectedApplication.ktp_path && (
                   <a
@@ -523,6 +505,27 @@ export default function ApplicationsPage() {
                     <FiDownload className="text-red-600 group-hover:text-red-700" size={20} />
                   </a>
                 )}
+
+                {/* CV */}
+                {selectedApplication.cv_path && (
+                  <a
+                    href={`${getBaseURL()}${selectedApplication.cv_path}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                    className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors group"
+                  >
+                    <div className="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                      <FiFileText className="text-white" size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">CV / Resume</p>
+                      <p className="text-xs text-gray-500">Klik untuk download</p>
+                    </div>
+                    <FiDownload className="text-blue-600 group-hover:text-blue-700" size={20} />
+                  </a>
+                )}
+                
               </div>
 
               {/* Sertifikat (Multiple Files) */}
