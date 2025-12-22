@@ -317,7 +317,8 @@ export default function ApplicationsPage() {
           title="Detail Lamaran"
           size="lg"
         >
-          <div className="space-y-6">
+          <div className="max-h-[80vh] overflow-y-auto pr-2">
+            <div className="space-y-6">
             {/* Applicant Info */}
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -644,6 +645,7 @@ export default function ApplicationsPage() {
                   Rejected
                 </button>
               </div>
+            </div>
             </div>
           </div>
         </Modal>
