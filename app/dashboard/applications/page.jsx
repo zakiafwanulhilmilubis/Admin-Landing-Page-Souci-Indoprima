@@ -12,7 +12,9 @@ import {
   FiSearch,
   FiDownload,
   FiX,
+  FiImage,
 } from "react-icons/fi";
+import { FaWhatsapp, FaIdCard, FaUsers, FaGraduationCap, FaShieldAlt, FaAward } from "react-icons/fa";
 import Button from "@/components/Button";
 import Modal from "@/components/Modal";
 import Select from "@/components/Select";
@@ -83,6 +85,16 @@ export default function ApplicationsPage() {
   const handleResetFilters = () => {
     setSearchTerm("");
     setStatusFilter("all");
+  };
+
+  // Helper untuk parse sertifikat paths (JSON array)
+  const parseSertifikatPaths = (paths) => {
+    if (!paths) return [];
+    try {
+      return typeof paths === 'string' ? JSON.parse(paths) : paths;
+    } catch {
+      return [];
+    }
   };
 
   return (
@@ -223,6 +235,12 @@ export default function ApplicationsPage() {
                             <FiPhone className="mr-1" size={14} />
                             {item.phone}
                           </div>
+                          {item.whatsapp && (
+                            <div className="flex items-center mt-1">
+                              <FaWhatsapp className="mr-1 text-green-500" size={14} />
+                              {item.whatsapp}
+                            </div>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -338,6 +356,15 @@ export default function ApplicationsPage() {
                   </label>
                   <p className="text-gray-900">{selectedApplication.phone}</p>
                 </div>
+                {selectedApplication.whatsapp && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-500 flex items-center gap-1">
+                      <FaWhatsapp className="text-green-500" />
+                      WhatsApp
+                    </label>
+                    <p className="text-gray-900">{selectedApplication.whatsapp}</p>
+                  </div>
+                )}
                 <div>
                   <label className="text-sm font-medium text-gray-500">
                     Tanggal Melamar
@@ -346,11 +373,11 @@ export default function ApplicationsPage() {
                     {formatDateTime(selectedApplication.applied_at)}
                   </p>
                 </div>
-                <div>
+                <div className="col-span-2">
                   <label className="text-sm font-medium text-gray-500">
                     Status Saat Ini
                   </label>
-                  <p className="text-gray-900">
+                  <p className="text-gray-900 mt-1">
                     <span
                       className={`px-2 py-1 text-xs font-medium rounded-full ${
                         selectedApplication.status === "pending"
@@ -385,30 +412,150 @@ export default function ApplicationsPage() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   Cover Letter
                 </h3>
-                <p className="text-gray-700 whitespace-pre-wrap">
+                <p className="text-gray-700 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg">
                   {selectedApplication.cover_letter}
                 </p>
               </div>
             )}
 
-            {/* CV Download */}
-            {selectedApplication.cv_path && (
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  CV / Resume
-                </h3>
-                <a
-                  href={`${getBaseURL()}${selectedApplication.cv_path}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  download
-                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <FiDownload className="mr-2" />
-                  Download CV
-                </a>
+            {/* Dokumen Download Section */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Dokumen Lamaran
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {/* CV */}
+                {selectedApplication.cv_path && (
+                  <a
+                    href={`${getBaseURL()}${selectedApplication.cv_path}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                    className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors group"
+                  >
+                    <div className="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                      <FiFileText className="text-white" size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">CV / Resume</p>
+                      <p className="text-xs text-gray-500">Klik untuk download</p>
+                    </div>
+                    <FiDownload className="text-blue-600 group-hover:text-blue-700" size={20} />
+                  </a>
+                )}
+
+                {/* KTP */}
+                {selectedApplication.ktp_path && (
+                  <a
+                    href={`${getBaseURL()}${selectedApplication.ktp_path}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                    className="flex items-center gap-3 p-4 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors group"
+                  >
+                    <div className="flex-shrink-0 w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
+                      <FaIdCard className="text-white" size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">Kartu Tanda Penduduk (KTP)</p>
+                      <p className="text-xs text-gray-500">Klik untuk download</p>
+                    </div>
+                    <FiDownload className="text-purple-600 group-hover:text-purple-700" size={20} />
+                  </a>
+                )}
+
+                {/* Kartu Keluarga */}
+                {selectedApplication.kartu_keluarga_path && (
+                  <a
+                    href={`${getBaseURL()}${selectedApplication.kartu_keluarga_path}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                    className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors group"
+                  >
+                    <div className="flex-shrink-0 w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                      <FaUsers className="text-white" size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">Kartu Keluarga (KK)</p>
+                      <p className="text-xs text-gray-500">Klik untuk download</p>
+                    </div>
+                    <FiDownload className="text-green-600 group-hover:text-green-700" size={20} />
+                  </a>
+                )}
+
+                {/* Ijazah */}
+                {selectedApplication.ijazah_path && (
+                  <a
+                    href={`${getBaseURL()}${selectedApplication.ijazah_path}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                    className="flex items-center gap-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100 transition-colors group"
+                  >
+                    <div className="flex-shrink-0 w-10 h-10 bg-yellow-600 rounded-lg flex items-center justify-center">
+                      <FaGraduationCap className="text-white" size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">Ijazah</p>
+                      <p className="text-xs text-gray-500">Klik untuk download</p>
+                    </div>
+                    <FiDownload className="text-yellow-600 group-hover:text-yellow-700" size={20} />
+                  </a>
+                )}
+
+                {/* SKCK */}
+                {selectedApplication.skck_path && (
+                  <a
+                    href={`${getBaseURL()}${selectedApplication.skck_path}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                    className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors group"
+                  >
+                    <div className="flex-shrink-0 w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
+                      <FaShieldAlt className="text-white" size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">Surat Keterangan Catatan Kepolisian (SKCK)</p>
+                      <p className="text-xs text-gray-500">Klik untuk download</p>
+                    </div>
+                    <FiDownload className="text-red-600 group-hover:text-red-700" size={20} />
+                  </a>
+                )}
               </div>
-            )}
+
+              {/* Sertifikat (Multiple Files) */}
+              {selectedApplication.sertifikat_paths && parseSertifikatPaths(selectedApplication.sertifikat_paths).length > 0 && (
+                <div className="mt-4">
+                  <h4 className="text-md font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <FaAward className="text-orange-500" />
+                    Sertifikat ({parseSertifikatPaths(selectedApplication.sertifikat_paths).length})
+                  </h4>
+                  <div className="grid grid-cols-1 gap-2">
+                    {parseSertifikatPaths(selectedApplication.sertifikat_paths).map((path, index) => (
+                      <a
+                        key={index}
+                        href={`${getBaseURL()}${path}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download
+                        className="flex items-center gap-3 p-3 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors group"
+                      >
+                        <div className="flex-shrink-0 w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center">
+                          <FaAward className="text-white" size={16} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900">Sertifikat {index + 1}</p>
+                          <p className="text-xs text-gray-500 truncate">{path.split('/').pop()}</p>
+                        </div>
+                        <FiDownload className="text-orange-600 group-hover:text-orange-700" size={18} />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Notes */}
             {selectedApplication.notes && (
@@ -416,7 +563,7 @@ export default function ApplicationsPage() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   Catatan
                 </h3>
-                <p className="text-gray-700 whitespace-pre-wrap">
+                <p className="text-gray-700 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg">
                   {selectedApplication.notes}
                 </p>
               </div>
@@ -424,7 +571,7 @@ export default function ApplicationsPage() {
 
             {/* Status Update */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
                 Update Status
               </h3>
               <div className="flex flex-wrap gap-2">
