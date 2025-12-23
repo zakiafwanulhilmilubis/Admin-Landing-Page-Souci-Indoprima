@@ -76,28 +76,24 @@ export default function DashboardPage() {
       value: stats?.total_news || 0,
       icon: FiFileText,
       color: "bg-blue-500",
-      trend: "+12%",
     },
     {
       title: "Lowongan Aktif",
       value: stats?.total_jobs || 0,
       icon: FiBriefcase,
       color: "bg-green-500",
-      trend: "+5%",
     },
     {
       title: "Total Lamaran",
       value: stats?.total_applications || 0,
       icon: FiUser,
       color: "bg-purple-500",
-      trend: "+23%",
     },
     {
       title: "Pesan Kontak",
       value: stats?.total_contacts || 0,
       icon: FiMail,
       color: "bg-yellow-500",
-      trend: "+8%",
     },
   ];
 
@@ -138,10 +134,6 @@ export default function DashboardPage() {
                         <p className="text-3xl font-bold text-gray-900 mt-2">
                           {stat.value}
                         </p>
-                        <div className="flex items-center mt-2 text-sm text-green-600">
-                          <FiTrendingUp size={16} className="mr-1" />
-                          <span>{stat.trend}</span>
-                        </div>
                       </div>
                       <div className={`${stat.color} p-4 rounded-full`}>
                         <Icon size={24} className="text-white" />
