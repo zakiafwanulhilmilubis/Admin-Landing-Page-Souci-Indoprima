@@ -1,47 +1,57 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { FiMenu, FiBell, FiUser } from "react-icons/fi";
-import { statisticsAPI } from "@/lib/api";
+import { useEffect, useRef, useState } from "react";
+import { FiMenu, FiBell, FiUser, FiMail, FiFileText } from "react-icons/fi";
+import { statisticsAPI, contactAPI, applicationsAPI } from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 export default function Navbar({ setSidebarOpen }) {
-  // ===============================
-  // 🔔 STATE NOTIFIKASI (TAMBAHAN)
-  // ===============================
+  const router = useRouter();
+  const dropdownRef = useRef(null);
+
   const [notificationCount, setNotificationCount] = useState(0);
+  const [contacts, setContacts] = useState([]);
+  const [applications, setApplications] = useState([]);
+  const [open, setOpen] = useState(false);
 
   const hasNotifications = notificationCount > 0;
 
   // ===============================
-  // 🔄 FETCH NOTIFIKASI (TAMBAHAN)
+  // FETCH NOTIFICATIONS
   // ===============================
   const fetchNotifications = async () => {
     try {
-      const res = await statisticsAPI.getDashboard();
+      const stats = await statisticsAPI.getDashboard();
 
       const pendingApplications =
-        res?.data?.data?.counts?.pendingApplications || 0;
-
+        stats?.data?.data?.counts?.pendingApplications || 0;
       const unreadContacts =
-        res?.data?.data?.counts?.unreadContacts || 0;
+        stats?.data?.data?.counts?.unreadContacts || 0;
 
       setNotificationCount(pendingApplications + unreadContacts);
-    } catch (error) {
-      console.error("Gagal mengambil notifikasi:", error);
+
+      // dropdown content (limit)
+      const [contactsRes, appsRes] = await Promise.all([
+        contactAPI.getAll({ status: "new", limit: 3 }),
+        applicationsAPI.getAll({ status: "pending", limit: 3 }),
+      ]);
+
+      setContacts(contactsRes?.data?.data || []);
+      setApplications(appsRes?.data?.data || []);
+    } catch (err) {
+      console.error("Notifikasi error:", err);
     }
   };
 
   // ===============================
-  // ⏱️ INIT + EVENT LISTENER (TAMBAHAN)
+  // INIT & EVENTS
   // ===============================
   useEffect(() => {
     fetchNotifications();
 
-    // dengarkan event dari halaman lain
     const handler = () => fetchNotifications();
     window.addEventListener("refresh-notifications", handler);
 
-    // optional auto refresh tiap 1 menit
     const interval = setInterval(fetchNotifications, 60000);
 
     return () => {
@@ -50,12 +60,25 @@ export default function Navbar({ setSidebarOpen }) {
     };
   }, []);
 
+  // ===============================
+  // CLICK OUTSIDE CLOSE
+  // ===============================
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 lg:px-6">
-      {/* Left Section */}
+      {/* Left */}
       <div className="flex items-center gap-4">
         <button
-          onClick={() => setSidebarOpen((prev) => !prev)}
+          onClick={() => setSidebarOpen((p) => !p)}
           className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg lg:hidden"
         >
           <FiMenu size={24} />
@@ -65,13 +88,14 @@ export default function Navbar({ setSidebarOpen }) {
         </h2>
       </div>
 
-      {/* Right Section */}
-      <div className="flex items-center gap-4">
-        {/* 🔔 NOTIFICATIONS */}
-        <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
+      {/* Right */}
+      <div className="flex items-center gap-4 relative" ref={dropdownRef}>
+        {/* 🔔 NOTIFICATION BUTTON */}
+        <button
+          onClick={() => setOpen((p) => !p)}
+          className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
+        >
           <FiBell size={20} />
-
-          {/* Badge angka notifikasi */}
           {hasNotifications && (
             <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
               {notificationCount > 9 ? "9+" : notificationCount}
@@ -79,7 +103,66 @@ export default function Navbar({ setSidebarOpen }) {
           )}
         </button>
 
-        {/* User Profile */}
+        {/* 🔽 DROPDOWN */}
+        {open && (
+          <div className="absolute right-0 top-12 w-80 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden z-50">
+            <div className="px-4 py-3 border-b font-semibold text-gray-900">
+              Notifikasi
+            </div>
+
+            {/* Contacts */}
+            {contacts.map((c) => (
+              <button
+                key={`contact-${c.id}`}
+                onClick={() => {
+                  router.push("/dashboard/contact");
+                  setOpen(false);
+                }}
+                className="w-full text-left px-4 py-3 hover:bg-gray-50 flex gap-3"
+              >
+                <FiMail className="text-blue-600 mt-1" />
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    Pesan baru dari {c.name}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">
+                    {c.subject}
+                  </p>
+                </div>
+              </button>
+            ))}
+
+            {/* Applications */}
+            {applications.map((a) => (
+              <button
+                key={`app-${a.id}`}
+                onClick={() => {
+                  router.push("/dashboard/applications");
+                  setOpen(false);
+                }}
+                className="w-full text-left px-4 py-3 hover:bg-gray-50 flex gap-3"
+              >
+                <FiFileText className="text-green-600 mt-1" />
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    Lamaran baru: {a.name}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {a.job_title}
+                  </p>
+                </div>
+              </button>
+            ))}
+
+            {!contacts.length && !applications.length && (
+              <div className="px-4 py-6 text-center text-sm text-gray-500">
+                Tidak ada notifikasi baru
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* User */}
         <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
           <div className="hidden sm:block text-right">
             <p className="text-sm font-medium text-gray-900">Admin</p>
