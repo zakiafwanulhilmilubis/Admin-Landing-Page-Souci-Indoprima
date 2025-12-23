@@ -68,16 +68,26 @@ export default function ApplicationsPage() {
   };
 
   const handleUpdateStatus = async (id, status) => {
-    try {
-      await applicationsAPI.updateStatus(id, status);
-      fetchApplications();
+  try {
+    // Pastikan applicationsAPI.updateStatus mengirimkan object { status: status }
+    const response = await applicationsAPI.updateStatus(id, status);
+    
+    if (response.success || response.status === 200) {
+      // Refresh data agar UI terupdate
+      await fetchApplications();
+      // Tutup modal
       setIsModalOpen(false);
-      window.dispatchEvent(new Event("refresh-notifications"));
-    } catch (error) {
-      console.error("Error updating status:", error);
-      alert("Gagal mengupdate status");
+      // Opsional: Berikan feedback sukses
+      console.log("Status berhasil diperbarui");
     }
-  };
+  } catch (error) {
+    console.error("Error updating status:", error);
+    
+    // Mengambil pesan error dari backend jika ada
+    const errorMessage = error.response?.data?.message || "Gagal mengupdate status";
+    alert(errorMessage);
+  }
+};
 
   const handleClearSearch = () => {
     setSearchTerm("");
