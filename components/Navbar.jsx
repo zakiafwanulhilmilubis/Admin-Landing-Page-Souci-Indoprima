@@ -150,6 +150,8 @@ export default function Navbar({ setSidebarOpen }) {
                   <p className="text-xs text-gray-500">
                     {a.job_title}
                   </p>
+                   {a.status && (<span className="text-xs font-medium px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">{a.status}</span>
+                  )}
                 </div>
               </button>
             ))}
