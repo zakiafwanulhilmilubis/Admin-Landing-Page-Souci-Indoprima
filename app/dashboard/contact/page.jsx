@@ -48,6 +48,7 @@ export default function ContactPage() {
       try {
         await contactAPI.markAsRead(contact.id);
         fetchContacts();
+        window.dispatchEvent(new Event("refresh-notifications"));
       } catch (error) {
         console.error("Error marking as read:", error);
       }

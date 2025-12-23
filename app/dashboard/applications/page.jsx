@@ -72,6 +72,7 @@ export default function ApplicationsPage() {
       await applicationsAPI.updateStatus(id, status);
       fetchApplications();
       setIsModalOpen(false);
+      window.dispatchEvent(new Event("refresh-notifications"));
     } catch (error) {
       console.error("Error updating status:", error);
       alert("Gagal mengupdate status");
