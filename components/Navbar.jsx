@@ -21,16 +21,22 @@ export default function Navbar({ setSidebarOpen }) {
   // ===============================
   const fetchNotifications = async () => {
     try {
+      // reset agar tidak pakai data lama
+      setContacts([]);
+      setApplications([]);
+
       const stats = await statisticsAPI.getDashboard();
 
-      const pendingApplications =
+      const pendingApplicationsCount =
         stats?.data?.data?.counts?.pendingApplications || 0;
-      const unreadContacts =
+      const unreadContactsCount =
         stats?.data?.data?.counts?.unreadContacts || 0;
 
-      setNotificationCount(pendingApplications + unreadContacts);
+      setNotificationCount(
+        pendingApplicationsCount + unreadContactsCount
+      );
 
-      // dropdown content (limit)
+      // dropdown content
       const [contactsRes, appsRes] = await Promise.all([
         contactAPI.getAll({ status: "new", limit: 3 }),
         applicationsAPI.getAll({ status: "pending", limit: 3 }),
@@ -70,8 +76,16 @@ export default function Navbar({ setSidebarOpen }) {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // ===============================
+  // FILTER PENDING APPLICATIONS
+  // ===============================
+  const pendingApplications = applications.filter(
+    (a) => a.status === "pending"
+  );
 
   return (
     <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 lg:px-6">
@@ -132,32 +146,33 @@ export default function Navbar({ setSidebarOpen }) {
               </button>
             ))}
 
-{applications
-  .filter((a) => a.status === "pending")
-  .map((a) => (
-    <button
-      key={`app-${a.id}`}
-      onClick={() => {
-        router.push("/dashboard/applications");
-        setOpen(false);
-      }}
-      className="w-full text-left px-4 py-3 hover:bg-gray-50 flex gap-3"
-    >
-      <FiFileText className="text-green-600 mt-1" />
-      <div>
-        <p className="text-sm font-medium text-gray-900">
-          Lamaran baru: {a.name}
-        </p>
-        <p className="text-xs text-gray-500">{a.job_title}</p>
-        <span className="text-xs font-medium px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">
-          pending
-        </span>
-      </div>
-    </button>
-  ))}
+            {/* Applications */}
+            {pendingApplications.map((a) => (
+              <button
+                key={`app-${a.id}`}
+                onClick={() => {
+                  router.push("/dashboard/applications");
+                  setOpen(false);
+                }}
+                className="w-full text-left px-4 py-3 hover:bg-gray-50 flex gap-3"
+              >
+                <FiFileText className="text-green-600 mt-1" />
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    Lamaran baru: {a.name}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {a.job_title}
+                  </p>
+                  <span className="text-xs font-medium px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">
+                    pending
+                  </span>
+                </div>
+              </button>
+            ))}
 
-
-            {!contacts.length && !applications.length && (
+            {/* EMPTY STATE */}
+            {!contacts.length && !pendingApplications.length && (
               <div className="px-4 py-6 text-center text-sm text-gray-500">
                 Tidak ada notifikasi baru
               </div>

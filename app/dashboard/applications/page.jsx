@@ -75,6 +75,8 @@ export default function ApplicationsPage() {
     if (response.success || response.status === 200) {
       // Refresh data agar UI terupdate
       await fetchApplications();
+        // 🔔 refresh NOTIFIKASI navbar
+      window.dispatchEvent(new Event("refresh-notifications"));
       // Tutup modal
       setIsModalOpen(false);
       // Opsional: Berikan feedback sukses
