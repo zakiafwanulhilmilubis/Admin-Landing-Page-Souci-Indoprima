@@ -13,6 +13,7 @@ import {
   FiDownload,
   FiX,
   FiImage,
+  FiTrash2,
 } from "react-icons/fi";
 import { FaWhatsapp, FaIdCard, FaUsers, FaGraduationCap, FaShieldAlt, FaAward } from "react-icons/fa";
 import Button from "@/components/Button";
@@ -68,28 +69,59 @@ export default function ApplicationsPage() {
   };
 
   const handleUpdateStatus = async (id, status) => {
-  try {
-    // Pastikan applicationsAPI.updateStatus mengirimkan object { status: status }
-    const response = await applicationsAPI.updateStatus(id, status);
-    
-    if (response.success || response.status === 200) {
-      // Refresh data agar UI terupdate
-      await fetchApplications();
+    try {
+      // Pastikan applicationsAPI.updateStatus mengirimkan object { status: status }
+      const response = await applicationsAPI.updateStatus(id, status);
+      
+      if (response.success || response.status === 200) {
+        // Refresh data agar UI terupdate
+        await fetchApplications();
         // 🔔 refresh NOTIFIKASI navbar
-      window.dispatchEvent(new Event("refresh-notifications"));
-      // Tutup modal
-      setIsModalOpen(false);
-      // Opsional: Berikan feedback sukses
-      console.log("Status berhasil diperbarui");
+        window.dispatchEvent(new Event("refresh-notifications"));
+        // Tutup modal
+        setIsModalOpen(false);
+        // Opsional: Berikan feedback sukses
+        console.log("Status berhasil diperbarui");
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      
+      // Mengambil pesan error dari backend jika ada
+      const errorMessage = error.response?.data?.message || "Gagal mengupdate status";
+      alert(errorMessage);
     }
-  } catch (error) {
-    console.error("Error updating status:", error);
-    
-    // Mengambil pesan error dari backend jika ada
-    const errorMessage = error.response?.data?.message || "Gagal mengupdate status";
-    alert(errorMessage);
-  }
-};
+  };
+
+  const handleDelete = async (id, name) => {
+    // Konfirmasi sebelum menghapus
+    const isConfirmed = window.confirm(
+      `Apakah Anda yakin ingin menghapus lamaran dari ${name}?\n\nTindakan ini akan menghapus:\n- Data lamaran\n- File CV yang terupload\n- Semua dokumen terkait\n\nTindakan ini tidak dapat dibatalkan!`
+    );
+
+    if (!isConfirmed) return;
+
+    try {
+      const response = await applicationsAPI.delete(id);
+      
+      if (response.success || response.status === 200) {
+        // Refresh data
+        await fetchApplications();
+        // Refresh notifikasi
+        window.dispatchEvent(new Event("refresh-notifications"));
+        // Tutup modal jika sedang membuka detail lamaran yang dihapus
+        if (selectedApplication?.id === id) {
+          setIsModalOpen(false);
+          setSelectedApplication(null);
+        }
+        // Berikan feedback sukses
+        alert(`Lamaran dari ${name} berhasil dihapus`);
+      }
+    } catch (error) {
+      console.error("Error deleting application:", error);
+      const errorMessage = error.response?.data?.message || "Gagal menghapus lamaran";
+      alert(errorMessage);
+    }
+  };
 
   const handleClearSearch = () => {
     setSearchTerm("");
@@ -196,7 +228,7 @@ export default function ApplicationsPage() {
                     Tanggal
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Aksi
+                   <center>Aksi</center> 
                   </th>
                 </tr>
               </thead>
@@ -285,13 +317,23 @@ export default function ApplicationsPage() {
                         {formatDateTime(item.applied_at)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleViewDetail(item)}
-                        >
-                          Detail
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleViewDetail(item)}
+                          >
+                            Detail
+                          </Button>
+                          <button
+                            onClick={() => handleDelete(item.id, item.name)}
+                            className="px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700 border border-red-300 hover:border-red-400 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-1"
+                            title="Hapus lamaran"
+                          >
+                            <FiTrash2 size={16} />
+                            Hapus
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -586,77 +628,101 @@ export default function ApplicationsPage() {
               </div>
             )}
 
-            {/* Status Update */}
+            {/* Status Update & Delete Actions */}
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                Update Status
+                Aksi
               </h3>
-              <div className="flex flex-wrap gap-2">
+              
+              {/* Status Update Buttons */}
+              <div className="mb-4">
+                <label className="text-sm font-medium text-gray-700 block mb-2">
+                  Update Status:
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() =>
+                      handleUpdateStatus(selectedApplication.id, "pending")
+                    }
+                    disabled={selectedApplication.status === "pending"}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
+                      selectedApplication.status === "pending"
+                        ? "border-yellow-300 bg-yellow-50 text-yellow-700 cursor-not-allowed"
+                        : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    Pending
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleUpdateStatus(selectedApplication.id, "reviewed")
+                    }
+                    disabled={selectedApplication.status === "reviewed"}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      selectedApplication.status === "reviewed"
+                        ? "bg-blue-700 text-white cursor-not-allowed"
+                        : "bg-blue-600 text-white hover:bg-blue-700"
+                    }`}
+                  >
+                    Reviewed
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleUpdateStatus(selectedApplication.id, "shortlisted")
+                    }
+                    disabled={selectedApplication.status === "shortlisted"}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      selectedApplication.status === "shortlisted"
+                        ? "bg-green-700 text-white cursor-not-allowed"
+                        : "bg-green-600 text-white hover:bg-green-700"
+                    }`}
+                  >
+                    Shortlisted
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleUpdateStatus(selectedApplication.id, "accepted")
+                    }
+                    disabled={selectedApplication.status === "accepted"}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      selectedApplication.status === "accepted"
+                        ? "bg-green-800 text-white cursor-not-allowed"
+                        : "bg-green-700 text-white hover:bg-green-800"
+                    }`}
+                  >
+                    Accepted
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleUpdateStatus(selectedApplication.id, "rejected")
+                    }
+                    disabled={selectedApplication.status === "rejected"}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      selectedApplication.status === "rejected"
+                        ? "bg-red-700 text-white cursor-not-allowed"
+                        : "bg-red-600 text-white hover:bg-red-700"
+                    }`}
+                  >
+                    Rejected
+                  </button>
+                </div>
+              </div>
+
+              {/* Delete Button */}
+              <div className="pt-4 border-t border-gray-200">
+                <label className="text-sm font-medium text-gray-700 block mb-2">
+                  Hapus Lamaran:
+                </label>
                 <button
-                  onClick={() =>
-                    handleUpdateStatus(selectedApplication.id, "pending")
-                  }
-                  disabled={selectedApplication.status === "pending"}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
-                    selectedApplication.status === "pending"
-                      ? "border-yellow-300 bg-yellow-50 text-yellow-700 cursor-not-allowed"
-                      : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                  }`}
+                  onClick={() => handleDelete(selectedApplication.id, selectedApplication.name)}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors flex items-center gap-2"
                 >
-                  Pending
+                  <FiTrash2 size={16} />
+                  Hapus Lamaran Ini
                 </button>
-                <button
-                  onClick={() =>
-                    handleUpdateStatus(selectedApplication.id, "reviewed")
-                  }
-                  disabled={selectedApplication.status === "reviewed"}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    selectedApplication.status === "reviewed"
-                      ? "bg-blue-700 text-white cursor-not-allowed"
-                      : "bg-blue-600 text-white hover:bg-blue-700"
-                  }`}
-                >
-                  Reviewed
-                </button>
-                <button
-                  onClick={() =>
-                    handleUpdateStatus(selectedApplication.id, "shortlisted")
-                  }
-                  disabled={selectedApplication.status === "shortlisted"}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    selectedApplication.status === "shortlisted"
-                      ? "bg-green-700 text-white cursor-not-allowed"
-                      : "bg-green-600 text-white hover:bg-green-700"
-                  }`}
-                >
-                  Shortlisted
-                </button>
-                <button
-                  onClick={() =>
-                    handleUpdateStatus(selectedApplication.id, "accepted")
-                  }
-                  disabled={selectedApplication.status === "accepted"}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    selectedApplication.status === "accepted"
-                      ? "bg-green-800 text-white cursor-not-allowed"
-                      : "bg-green-700 text-white hover:bg-green-800"
-                  }`}
-                >
-                  Accepted
-                </button>
-                <button
-                  onClick={() =>
-                    handleUpdateStatus(selectedApplication.id, "rejected")
-                  }
-                  disabled={selectedApplication.status === "rejected"}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    selectedApplication.status === "rejected"
-                      ? "bg-red-700 text-white cursor-not-allowed"
-                      : "bg-red-600 text-white hover:bg-red-700"
-                  }`}
-                >
-                  Rejected
-                </button>
+                <p className="text-xs text-gray-500 mt-2">
+                  ⚠️ Tindakan ini akan menghapus data lamaran dan semua file terkait secara permanen
+                </p>
               </div>
             </div>
             </div>
