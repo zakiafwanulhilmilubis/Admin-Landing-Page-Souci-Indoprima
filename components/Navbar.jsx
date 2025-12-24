@@ -123,7 +123,7 @@ export default function Navbar({ setSidebarOpen }) {
             <div className="px-4 py-3 border-b font-semibold text-gray-900">
               Notifikasi
             </div>
- 
+
             {/* Contacts */}
             {contacts.map((c) => (
               <button
@@ -174,7 +174,7 @@ export default function Navbar({ setSidebarOpen }) {
             {/* EMPTY STATE */}
             {!contacts.length && !pendingApplications.length && (
               <div className="px-4 py-6 text-center text-sm text-gray-500">
-                Tidak ada notifikasi terbaru
+                Tidak ada notifikasi baru
               </div>
             )}
           </div>
