@@ -267,7 +267,7 @@ export default function JobsPage() {
                     Tanggal
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Aksi
+                    <center>Aksi</center> 
                   </th>
                 </tr>
               </thead>
@@ -309,7 +309,7 @@ export default function JobsPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {formatDateTime(item.created_at)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                         <button
                           onClick={() => handleEdit(item)}
                           className="text-blue-600 hover:text-blue-900 mr-3"

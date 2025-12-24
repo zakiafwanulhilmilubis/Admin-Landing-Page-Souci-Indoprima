@@ -707,23 +707,6 @@ export default function ApplicationsPage() {
                   </button>
                 </div>
               </div>
-
-              {/* Delete Button */}
-              <div className="pt-4 border-t border-gray-200">
-                <label className="text-sm font-medium text-gray-700 block mb-2">
-                  Hapus Lamaran:
-                </label>
-                <button
-                  onClick={() => handleDelete(selectedApplication.id, selectedApplication.name)}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors flex items-center gap-2"
-                >
-                  <FiTrash2 size={16} />
-                  Hapus Lamaran Ini
-                </button>
-                <p className="text-xs text-gray-500 mt-2">
-                  ⚠️ Tindakan ini akan menghapus data lamaran dan semua file terkait secara permanen
-                </p>
-              </div>
             </div>
             </div>
           </div>
