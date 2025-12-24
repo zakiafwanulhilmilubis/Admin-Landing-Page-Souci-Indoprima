@@ -132,29 +132,30 @@ export default function Navbar({ setSidebarOpen }) {
               </button>
             ))}
 
-            {/* Applications */}
-            {applications.map((a) => (
-              <button
-                key={`app-${a.id}`}
-                onClick={() => {
-                  router.push("/dashboard/applications");
-                  setOpen(false);
-                }}
-                className="w-full text-left px-4 py-3 hover:bg-gray-50 flex gap-3"
-              >
-                <FiFileText className="text-green-600 mt-1" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    Lamaran baru: {a.name}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {a.job_title}
-                  </p>
-                   {a.status && (<span className="text-xs font-medium px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">{a.status}</span>
-                  )}
-                </div>
-              </button>
-            ))}
+{applications
+  .filter((a) => a.status === "pending")
+  .map((a) => (
+    <button
+      key={`app-${a.id}`}
+      onClick={() => {
+        router.push("/dashboard/applications");
+        setOpen(false);
+      }}
+      className="w-full text-left px-4 py-3 hover:bg-gray-50 flex gap-3"
+    >
+      <FiFileText className="text-green-600 mt-1" />
+      <div>
+        <p className="text-sm font-medium text-gray-900">
+          Lamaran baru: {a.name}
+        </p>
+        <p className="text-xs text-gray-500">{a.job_title}</p>
+        <span className="text-xs font-medium px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">
+          pending
+        </span>
+      </div>
+    </button>
+  ))}
+
 
             {!contacts.length && !applications.length && (
               <div className="px-4 py-6 text-center text-sm text-gray-500">
