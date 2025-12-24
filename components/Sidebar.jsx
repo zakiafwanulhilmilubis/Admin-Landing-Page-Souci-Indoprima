@@ -38,8 +38,13 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
   return (
     <>
-      {/* Mobile Overlay */}
-      <div className={`fixed inset-0 bg-black transition-opacity duration-300 z-40 lg:hidden ${isOpen ? "bg-opacity-50" : "bg-opacity-0 pointer-events-none"}`} onClick={() => setIsOpen(false)} />
+      {/* Mobile Overlay - hanya render ketika isOpen true */}
+{isOpen && (
+  <div 
+    className="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 z-40 lg:hidden" 
+    onClick={() => setIsOpen(false)} 
+  />
+)}
 
       {/* Sidebar */}
       <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-gray-900 text-white transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
