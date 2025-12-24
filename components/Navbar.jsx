@@ -119,7 +119,7 @@ export default function Navbar({ setSidebarOpen }) {
 
         {/* 🔽 DROPDOWN */}
         {open && (
-          <div className="absolute right-0 top-12 w-80 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden z-50">
+          <div className="absolute right-0 top-12 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-[400px] overflow-y-auto">
             <div className="px-4 py-3 border-b font-semibold text-gray-900">
               Notifikasi
             </div>
