@@ -146,6 +146,7 @@ export default function StatisticsPage() {
                   <div className={`${stat.color} p-3 rounded-lg`}>
                     <Icon size={24} className="text-white" />
                   </div>
+                  <FiTrendingUp className="text-green-500" size={20} />
                 </div>
                 <h3 className="text-gray-600 text-sm font-medium mb-1">
                   {stat.title}
