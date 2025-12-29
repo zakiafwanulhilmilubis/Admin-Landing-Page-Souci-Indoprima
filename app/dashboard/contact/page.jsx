@@ -11,6 +11,7 @@ import {
   FiMessageSquare,
   FiSearch,
   FiCheck,
+  FiTrash2,
 } from "react-icons/fi";
 import Button from "@/components/Button";
 import Modal from "@/components/Modal";
@@ -22,6 +23,10 @@ export default function ContactPage() {
   const [selectedContact, setSelectedContact] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  
+  // State untuk bulk delete
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchContacts();
@@ -67,6 +72,52 @@ export default function ContactPage() {
     }
   };
 
+  // Handler untuk checkbox individual
+  const handleSelectOne = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  // Handler untuk select all
+  const handleSelectAll = () => {
+    if (selectedIds.length === filteredContacts.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredContacts.map((contact) => contact.id));
+    }
+  };
+
+  // Handler untuk bulk delete
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) {
+      alert("Pilih minimal satu pesan untuk dihapus");
+      return;
+    }
+
+    if (
+      confirm(
+        `Apakah Anda yakin ingin menghapus ${selectedIds.length} pesan yang dipilih?`
+      )
+    ) {
+      try {
+        setIsDeleting(true);
+        // Delete semua yang dipilih
+        await Promise.all(selectedIds.map((id) => contactAPI.delete(id)));
+        
+        // Reset selection dan refresh
+        setSelectedIds([]);
+        await fetchContacts();
+        alert("Pesan berhasil dihapus");
+      } catch (error) {
+        console.error("Error deleting contacts:", error);
+        alert("Gagal menghapus beberapa pesan");
+      } finally {
+        setIsDeleting(false);
+      }
+    }
+  };
+
   const filteredContacts = contacts.filter((item) => {
     const matchesSearch =
       item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -104,7 +155,8 @@ export default function ContactPage() {
                 placeholder="Cari pesan..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="text-gray-700 placeholder-gray-500 w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                className="text-gray-700 placeholder-gray-500 w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
             <select
               value={statusFilter}
@@ -122,20 +174,69 @@ export default function ContactPage() {
           </div>
         </div>
 
+        {/* Bulk Actions Bar */}
+        {selectedIds.length > 0 && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
+            <span className="text-blue-900 font-medium">
+              {selectedIds.length} pesan dipilih
+            </span>
+            <Button
+              variant="danger"
+              onClick={handleBulkDelete}
+              disabled={isDeleting}
+            >
+              <FiTrash2 className="mr-2" />
+              {isDeleting ? "Menghapus...": "Hapus Terpilih"}
+            </Button>
+          </div>
+        )}
+
         {/* Messages List */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
+          {/* Header dengan Select All */}
+          {filteredContacts.length > 0 && (
+            <div className="px-6 py-3 bg-gray-50 border-b border-gray-200 flex items-center">
+              <input
+                type="checkbox"
+                checked={
+                  selectedIds.length === filteredContacts.length &&
+                  filteredContacts.length > 0
+                }
+                onChange={handleSelectAll}
+                className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <label className="ml-3 text-sm font-medium text-gray-700">
+                Pilih Semua
+              </label>
+            </div>
+          )}
+
           <div className="divide-y divide-gray-200">
             {filteredContacts.length > 0 ? (
               filteredContacts.map((item) => (
                 <div
                   key={item.id}
-                  className={`p-6 hover:bg-gray-50 cursor-pointer ${
+                  className={`p-6 hover:bg-gray-50 ${
                     item.status === "new" ? "bg-blue-50" : ""
                   }`}
-                  onClick={() => handleViewDetail(item)}
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
+                  <div className="flex items-start gap-4">
+                    {/* Checkbox */}
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(item.id)}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        handleSelectOne(item.id);
+                      }}
+                      className="mt-3 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+
+                    {/* Content - clickable */}
+                    <div
+                      className="flex-1 cursor-pointer"
+                      onClick={() => handleViewDetail(item)}
+                    >
                       <div className="flex items-center gap-3 mb-2">
                         <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
                           <FiUser className="text-blue-600" />
@@ -168,16 +269,17 @@ export default function ContactPage() {
                         </div>
                       </div>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="danger"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(item.id);
-                      }}
-                    >
-                      Hapus
-                    </Button>
+
+                    {/* Delete Icon */}
+<button
+  onClick={(e) => {
+    e.stopPropagation();
+    handleDelete(item.id);
+  }}
+  className="text-red-400 hover:text-red-600 transition-colors p-2"
+>
+  <FiTrash2 size={20} />
+</button>
                   </div>
                 </div>
               ))
