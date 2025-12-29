@@ -166,10 +166,10 @@ export default function ContactPage() {
               }`}
             >
               <option value="all">Semua Pesan</option>
-              <option value="new">Baru</option>
+              <option value="new">Belum Dibaca</option>
               <option value="read">Sudah Dibaca</option>
-              <option value="replied">Sudah Dibalas</option>
-              <option value="archived">Diarsipkan</option>
+              {/* <option value="replied">Sudah Dibalas</option>
+              <option value="archived">Diarsipkan</option> */}
             </select>
           </div>
         </div>
@@ -370,16 +370,18 @@ export default function ContactPage() {
               >
                 Tutup
               </Button>
-              <a
-                href={`mailto:${selectedContact.email}?subject=Re: ${selectedContact.subject}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Button variant="primary">
-                  <FiMail className="mr-2" />
-                  Balas Email
-                </Button>
-              </a>
+                <a
+                  href={`https://mail.google.com/mail/?view=cm&fs=1&to=${selectedContact.email}&su=Re: ${encodeURIComponent(
+                    selectedContact.subject
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button variant="primary">
+                    <FiMail className="mr-2" />
+                    Balas Email
+                  </Button>
+                </a>
             </div>
           </div>
         </Modal>
