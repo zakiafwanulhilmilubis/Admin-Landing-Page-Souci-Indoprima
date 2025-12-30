@@ -374,6 +374,8 @@ export default function ApplicationsPage() {
         >
           <div className="max-h-[80vh] overflow-y-auto pr-2">
             <div className="space-y-6">
+
+              
             {/* Applicant Info */}
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -468,7 +470,7 @@ export default function ApplicationsPage() {
             {selectedApplication.cover_letter && (
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Cover Letter
+                  Deskripsi Singkat
                 </h3>
                 <p className="text-gray-700 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg">
                   {selectedApplication.cover_letter}
@@ -562,6 +564,46 @@ export default function ApplicationsPage() {
                   </a>
                 )}
 
+                {/* Surat  Lamaran */}
+                {selectedApplication.surat_lamaran_path && (
+                  <a
+                    href={`${getBaseURL()}${selectedApplication.surat_lamaran_path}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                    className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors group"
+                  >
+                    <div className="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                      <FiFileText className="text-white" size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">Surat Lamaran</p>
+                      <p className="text-xs text-gray-500">Klik untuk download</p>
+                    </div>
+                    <FiDownload className="text-blue-600 group-hover:text-blue-700" size={20} />
+                  </a>
+                )}
+
+                {/* Pas Foto */}
+                {selectedApplication.pas_foto_path && (
+                  <a
+                    href={`${getBaseURL()}${selectedApplication.pas_foto_path}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                    className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors group"
+                  >
+                    <div className="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                      <FiFileText className="text-white" size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">Pas Foto</p>
+                      <p className="text-xs text-gray-500">Klik untuk download</p>
+                    </div>
+                    <FiDownload className="text-blue-600 group-hover:text-blue-700" size={20} />
+                  </a>
+                )}
+
                 {/* CV */}
                 {selectedApplication.cv_path && (
                   <a
@@ -581,7 +623,6 @@ export default function ApplicationsPage() {
                     <FiDownload className="text-blue-600 group-hover:text-blue-700" size={20} />
                   </a>
                 )}
-                
               </div>
 
               {/* Sertifikat (Multiple Files) */}
@@ -589,7 +630,7 @@ export default function ApplicationsPage() {
                 <div className="mt-4">
                   <h4 className="text-md font-semibold text-gray-900 mb-3 flex items-center gap-2">
                     <FaAward className="text-orange-500" />
-                    Sertifikat ({parseSertifikatPaths(selectedApplication.sertifikat_paths).length})
+                    Sertifikat
                   </h4>
                   <div className="grid grid-cols-1 gap-2">
                     {parseSertifikatPaths(selectedApplication.sertifikat_paths).map((path, index) => (
@@ -605,7 +646,7 @@ export default function ApplicationsPage() {
                           <FaAward className="text-white" size={16} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900">Sertifikat {index + 1}</p>
+                          <p className="text-sm font-medium text-gray-900">Sertifikat</p>
                           <p className="text-xs text-gray-500 truncate">{path.split('/').pop()}</p>
                         </div>
                         <FiDownload className="text-orange-600 group-hover:text-orange-700" size={18} />
