@@ -13,12 +13,14 @@ import {
   FiDownload,
   FiX,
   FiImage,
+  FiCamera,
   FiTrash2,
 } from "react-icons/fi";
 import { FaWhatsapp, FaIdCard, FaUsers, FaGraduationCap, FaShieldAlt, FaAward } from "react-icons/fa";
 import Button from "@/components/Button";
 import Modal from "@/components/Modal";
 import Select from "@/components/Select";
+import * as XLSX from 'xlsx';
 
 export default function ApplicationsPage() {
   const [applications, setApplications] = useState([]);
@@ -142,6 +144,138 @@ export default function ApplicationsPage() {
     }
   };
 
+  // Fungsi Export to Excel
+  const handleExportToExcel = () => {
+    const baseURL = getBaseURL();
+    
+    // Siapkan data untuk export
+    const dataToExport = filteredApplications.map((app, index) => {
+      const sertifikatPaths = parseSertifikatPaths(app.sertifikat_paths);
+      
+      return {
+        'No': index + 1,
+        'Nama': app.name,
+        'Email': app.email,
+        'Telepon': app.phone,
+        'WhatsApp': app.whatsapp || '-',
+        'Posisi': app.job_title || `Job ID: ${app.job_id}`,
+        'Perusahaan': app.job_company || '-',
+        'Status': app.status,
+        'Tanggal Melamar': formatDateTime(app.applied_at),
+        'Cover Letter': app.cover_letter || '-',
+        'Catatan': app.notes || '-',
+        
+        // Link dokumen
+        'Link KTP': app.ktp_path ? `${baseURL}${app.ktp_path}` : '-',
+        'Link Kartu Keluarga': app.kartu_keluarga_path ? `${baseURL}${app.kartu_keluarga_path}` : '-',
+        'Link Ijazah': app.ijazah_path ? `${baseURL}${app.ijazah_path}` : '-',
+        'Link SKCK': app.skck_path ? `${baseURL}${app.skck_path}` : '-',
+        'Link Surat Lamaran': app.surat_lamaran_path ? `${baseURL}${app.surat_lamaran_path}` : '-',
+        'Link Pas Foto': app.pas_foto_path ? `${baseURL}${app.pas_foto_path}` : '-',
+        'Link CV': app.cv_path ? `${baseURL}${app.cv_path}` : '-',
+        'Link Sertifikat': sertifikatPaths.length > 0 
+          ? sertifikatPaths.map(path => `${baseURL}${path}`).join(' | ') 
+          : '-',
+      };
+    });
+
+    // Buat worksheet
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    
+    // Tambahkan hyperlink ke setiap cell yang berisi URL
+    const range = XLSX.utils.decode_range(worksheet['!ref']);
+    
+    // Kolom yang mengandung link (kolom ke-12 sampai ke-19 adalah kolom link)
+    const linkColumns = ['L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S']; // Kolom L sampai S
+    
+    for (let row = range.s.r + 1; row <= range.e.r; row++) {
+      filteredApplications.forEach((app, index) => {
+        if (index === row - 1) {
+          const sertifikatPaths = parseSertifikatPaths(app.sertifikat_paths);
+          
+          // Helper function untuk set hyperlink
+          const setHyperlink = (col, url, displayText = 'Download') => {
+            const cellAddress = col + (row + 1);
+            if (url && url !== '-') {
+              worksheet[cellAddress] = {
+                t: 's',
+                v: displayText,
+                l: { Target: url, Tooltip: url },
+                s: {
+                  font: { color: { rgb: "0563C1" }, underline: true }
+                }
+              };
+            }
+          };
+          
+          // Set hyperlink untuk setiap dokumen
+          if (app.ktp_path) {
+            setHyperlink('L', `${baseURL}${app.ktp_path}`, 'Download KTP');
+          }
+          if (app.kartu_keluarga_path) {
+            setHyperlink('M', `${baseURL}${app.kartu_keluarga_path}`, 'Download KK');
+          }
+          if (app.ijazah_path) {
+            setHyperlink('N', `${baseURL}${app.ijazah_path}`, 'Download Ijazah');
+          }
+          if (app.skck_path) {
+            setHyperlink('O', `${baseURL}${app.skck_path}`, 'Download SKCK');
+          }
+          if (app.surat_lamaran_path) {
+            setHyperlink('P', `${baseURL}${app.surat_lamaran_path}`, 'Download Surat Lamaran');
+          }
+          if (app.pas_foto_path) {
+            setHyperlink('Q', `${baseURL}${app.pas_foto_path}`, 'Download Pas Foto');
+          }
+          if (app.cv_path) {
+            setHyperlink('R', `${baseURL}${app.cv_path}`, 'Download CV');
+          }
+          if (sertifikatPaths.length > 0) {
+            const sertifikatLinks = sertifikatPaths.map((path, idx) => 
+              `Sertifikat ${idx + 1}: ${baseURL}${path}`
+            ).join('\n');
+            setHyperlink('S', `${baseURL}${sertifikatPaths[0]}`, `${sertifikatPaths.length} Sertifikat`);
+          }
+        }
+      });
+    }
+    
+    // Atur lebar kolom
+    const columnWidths = [
+      { wch: 5 },   // No
+      { wch: 25 },  // Nama
+      { wch: 30 },  // Email
+      { wch: 15 },  // Telepon
+      { wch: 15 },  // WhatsApp
+      { wch: 25 },  // Posisi
+      { wch: 20 },  // Perusahaan
+      { wch: 12 },  // Status
+      { wch: 20 },  // Tanggal
+      { wch: 40 },  // Cover Letter
+      { wch: 30 },  // Catatan
+      { wch: 20 },  // Link KTP
+      { wch: 20 },  // Link KK
+      { wch: 20 },  // Link Ijazah
+      { wch: 20 },  // Link SKCK
+      { wch: 25 },  // Link Surat Lamaran
+      { wch: 20 },  // Link Pas Foto
+      { wch: 20 },  // Link CV
+      { wch: 20 },  // Link Sertifikat
+    ];
+    worksheet['!cols'] = columnWidths;
+
+    // Buat workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lamaran');
+
+    // Generate nama file dengan timestamp
+    const timestamp = new Date().toISOString().split('T')[0];
+    const fileName = `Lamaran_Export_${timestamp}.xlsx`;
+
+    // Download file
+    XLSX.writeFile(workbook, fileName);
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -155,17 +289,32 @@ export default function ApplicationsPage() {
               Kelola lamaran pekerjaan - Menampilkan {filteredApplications.length} dari {applications.length} lamaran
             </p>
           </div>
-          {(searchTerm || statusFilter !== "all") && (
+          
+          <div className="flex gap-2">
+            {/* Tombol Export to Excel */}
             <Button
               size="sm"
-              variant="outline"
-              onClick={handleResetFilters}
+              variant="primary"
+              onClick={handleExportToExcel}
+              disabled={filteredApplications.length === 0}
               className="flex items-center gap-2"
             >
-              <FiX size={16} />
-              Reset Filter
+              <FiDownload size={16} />
+              Export to Excel
             </Button>
-          )}
+            
+            {(searchTerm || statusFilter !== "all") && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleResetFilters}
+                className="flex items-center gap-2"
+              >
+                <FiX size={16} />
+                Reset Filter
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Filters */}
@@ -593,8 +742,8 @@ export default function ApplicationsPage() {
                     download
                     className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors group"
                   >
-                    <div className="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                      <FiFileText className="text-white" size={20} />
+                    <div className="flex-shrink-0 w-10 h-10 bg-gray-600 rounded-lg flex items-center justify-center">
+                      <FiCamera className="text-white" size={20} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900">Pas Foto</p>
@@ -613,8 +762,8 @@ export default function ApplicationsPage() {
                     download
                     className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors group"
                   >
-                    <div className="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                      <FiFileText className="text-white" size={20} />
+                    <div className="flex-shrink-0 w-10 h-10 bg-pink-600 rounded-lg flex items-center justify-center">
+                      <FiUser className="text-white" size={20} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900">CV / Resume</p>
@@ -646,7 +795,7 @@ export default function ApplicationsPage() {
                           <FaAward className="text-white" size={16} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900">Sertifikat</p>
+                          <p className="text-sm font-medium text-gray-900">Sertifikat {index + 1}</p>
                           <p className="text-xs text-gray-500 truncate">{path.split('/').pop()}</p>
                         </div>
                         <FiDownload className="text-orange-600 group-hover:text-orange-700" size={18} />
